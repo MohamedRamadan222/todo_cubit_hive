@@ -10,8 +10,8 @@ Future<void> main() async {
   // init the hive
   await Hive.initFlutter();
   // register the adapter
-
   Hive.registerAdapter(TodoModelAdapter());
+
   // open the hive
   await Hive.openBox('todosCubits');
   runApp(const MyApp());

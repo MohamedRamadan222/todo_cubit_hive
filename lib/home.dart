@@ -13,11 +13,18 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final TextEditingController _controller = TextEditingController();
 
-  void _showAddTodoDialog(BuildContext context) {
+  void _showTodoDialog(
+    BuildContext context,
+    int? index,
+    String? currentTitle,
+  ) {
+    final title = currentTitle != null && currentTitle.isNotEmpty
+        ? "Edit Todo"
+        : 'Add Todo';
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Todo'),
+        title: Text(title),
         content: TextField(
           controller: _controller,
           decoration: const InputDecoration(hintText: 'Enter Todo Title'),
@@ -29,44 +36,16 @@ class _HomeState extends State<Home> {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<TodoCubit>().addTodo(_controller.text);
+              if ((currentTitle != null && currentTitle.isNotEmpty) &&
+                  index != null) {
+                context.read<TodoCubit>().editTodoName(index, _controller.text);
+              } else {
+                context.read<TodoCubit>().addTodo(_controller.text);
+              }
               _controller.clear();
               Navigator.pop(context);
             },
             child: const Text('Add it Please'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // أضف index هنا كباراميتر
-  void _showEditTodoDialog(BuildContext context, int index, String currentTitle) {
-    _controller.text = currentTitle;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Todo'),
-        content: TextField(
-          controller: _controller,
-          decoration: const InputDecoration(hintText: 'Enter New Todo Title'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _controller.clear();
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<TodoCubit>().editTodoName(index, _controller.text);
-              _controller.clear();
-              Navigator.pop(context);
-            },
-            child: const Text('Edit it Please'),
           ),
         ],
       ),
@@ -91,7 +70,7 @@ class _HomeState extends State<Home> {
               itemBuilder: (context, index) {
                 final todo = todos[index];
                 return InkWell(
-                  onTap: () => _showEditTodoDialog(context, index, todo.title),
+                  onTap: () => _showTodoDialog(context, index, todo.title),
 
                   child: ListTile(
                     leading: Checkbox(
@@ -123,7 +102,7 @@ class _HomeState extends State<Home> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddTodoDialog(context),
+        onPressed: () => _showTodoDialog(context, null, null),
         child: const Icon(Icons.add),
       ),
     );
